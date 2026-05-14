@@ -73,3 +73,8 @@ npm run build
 npx cap sync android
 npx cap run android
 Importante: Se o aplicativo for rodar em um dispositivo acessando um servidor na rede local, atualize a constante API no arquivo App.jsx com o IPv4 da máquina host antes de gerar o build. Apenas usar localhost não funcionará fora do ambiente de desenvolvimento da própria máquina.
+
+
+ps: primeiramente eu tentei utilizar o androidStudio pra rodar o teste do aplicativo atraves do dispositivo virtual que o software disponibiliza 
+alem de eu nao conseguir fazer rodar por conta do consumo absurdo de RAM que isso requeria do meu pc, eu nao consegui estabelecer a conexão do 
+banco de dados com o aplicativo de jeito nenhum.
