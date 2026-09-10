@@ -3,11 +3,12 @@ from datetime import datetime, timedelta
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from attachment_storage import purgar_anexos_do_card
 from database import get_db
-from models import CardDB, CardSeenDB, ColumnDB, ItemSeenDB, UserDB
+from models import CardDB, CardSeenDB, ColumnDB, ItemSeenDB, SuggestionDB, UserDB
 from schemas import CardMergeRequest, CardReorderItem, CardSchema
 from security import get_current_user, require_admin
 from audit import _mk_log, log_card_created, log_card_deleted, process_card_update
@@ -107,7 +108,7 @@ def _annotate_checklist(checklist, item_seen_map):
     return annotated
 
 
-def _serialize_card(c: CardDB, visto_versao, item_seen_map):
+def _serialize_card(c: CardDB, visto_versao, item_seen_map, sugestoes_pendentes=0):
     alteracoes_nao_vistas = max(0, (c.alteracoes or 0) - (visto_versao or 0))
     return {
         "id": c.id, "titulo": c.titulo, "descricao": c.descricao, "status": c.status,
@@ -117,6 +118,10 @@ def _serialize_card(c: CardDB, visto_versao, item_seen_map):
         "updated_em": c.updated_em,
         "alteracoes_nao_vistas": alteracoes_nao_vistas,
         "nao_visto": alteracoes_nao_vistas > 0,
+        # Aviso separado do de "não visto": este não é por pessoa e não some
+        # quando alguém lê — sugestão é pedido de decisão, então fica aceso
+        # até aceitarem ou recusarem. Vem 0 pra quem não pode decidir.
+        "sugestoes_pendentes": sugestoes_pendentes,
         "recorrente": bool(c.recorrente), "recorrencia_dias": c.recorrencia_dias,
         "recorrencia_coluna_reset": c.recorrencia_coluna_reset, "recorrencia_proximo_reset": c.recorrencia_proximo_reset,
     }
@@ -174,7 +179,22 @@ def get_cards(db: Session = Depends(get_db), current_user: UserDB = Depends(get_
     item_seen_map = {}
     for r in db.query(ItemSeenDB).filter(ItemSeenDB.user_id == current_user.id).all():
         item_seen_map.setdefault(r.card_id, {})[r.item_id] = r.visto_versao
-    return [_serialize_card(c, seen_map.get(c.id), item_seen_map.get(c.id, {})) for c in all_cards]
+
+    # Contagem numa consulta agregada só — por card seria N+1 num board inteiro.
+    # Quem não decide sugestão não recebe o aviso: não teria o que fazer com ele.
+    pendentes = {}
+    if "decidir_sugestoes" in get_user_permissions(db, current_user.id):
+        pendentes = dict(
+            db.query(SuggestionDB.card_id, func.count(SuggestionDB.id))
+            .filter(SuggestionDB.status == "pendente")
+            .group_by(SuggestionDB.card_id)
+            .all()
+        )
+
+    return [
+        _serialize_card(c, seen_map.get(c.id), item_seen_map.get(c.id, {}), pendentes.get(c.id, 0))
+        for c in all_cards
+    ]
 
 
 @router.post("/cards")

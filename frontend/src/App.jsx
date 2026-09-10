@@ -697,6 +697,16 @@ export default function App() {
                                                     <Calendar size={12} /> {formatarData(card.prazo)}
                                                   </span>
                                                 )}
+                                                {/* Âmbar com balão = sugestão esperando decisão. Fica aceso
+                                                    pra todos os decisores até alguém aceitar ou recusar —
+                                                    diferente do vermelho, que é "você não viu" e some sozinho. */}
+                                                {card.sugestoes_pendentes > 0 && (
+                                                  <span className="flex items-center gap-0.5 h-[19px] px-1.5 bg-amber-500 rounded-full ring-2 ring-white shadow-md text-white text-[10px] font-black leading-none"
+                                                    title={`${card.sugestoes_pendentes} sugest${card.sugestoes_pendentes === 1 ? 'ão aguardando' : 'ões aguardando'} decisão`}>
+                                                    <MessageSquare size={9} strokeWidth={3}/>
+                                                    {card.sugestoes_pendentes > 9 ? '9+' : card.sugestoes_pendentes}
+                                                  </span>
+                                                )}
                                                 {card.nao_visto && (
                                                   <span className="flex items-center justify-center min-w-[19px] h-[19px] px-1 bg-red-500 rounded-full ring-2 ring-white shadow-md animate-pulse text-white text-[10px] font-black leading-none"
                                                     title={`${card.alteracoes_nao_vistas} alteraç${card.alteracoes_nao_vistas === 1 ? 'ão não vista' : 'ões não vistas'}`}>
