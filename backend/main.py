@@ -1,6 +1,14 @@
+import os
+
 from dotenv import load_dotenv
 
-load_dotenv()
+# Ancorado no diretório deste arquivo, nunca relativo ao cwd — mesmo motivo do
+# path do banco em database.py. load_dotenv() sem argumento procura o .env a
+# partir do diretório de trabalho do processo, então subir o uvicorn de
+# qualquer lugar que não seja backend/ fazia o SECRET_KEY cair no fallback e o
+# GITHUB_TOKEN ficar vazio, o que a tela reporta como "integração não
+# configurada no servidor".
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
