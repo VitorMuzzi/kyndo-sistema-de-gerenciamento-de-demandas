@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const APP_VERSION = 'v1.9.2';
+export const APP_VERSION = 'v1.10.0';
 
 export const USER_COLORS = [
   'bg-blue-500/15 text-blue-300',

@@ -250,11 +250,11 @@ export default function CardModal({ card, col, allColumns, user, allUsers, allCa
               )}
               <div className="relative flex items-center gap-1 shrink-0">
                 {githubUrl && (
-                  <a href={githubUrl} target="_blank" rel="noopener noreferrer" title="Abrir repositório no GitHub" className="flex items-center justify-center w-8 h-8 bg-slate-800 border border-slate-700 rounded-lg text-slate-200 hover:text-white hover:border-slate-500 transition-colors">
+                  <a href={githubUrl} target="_blank" rel="noopener noreferrer" title="Abrir no GitHub" className="flex items-center justify-center w-8 h-8 bg-slate-800 border border-slate-700 rounded-lg text-slate-200 hover:text-white hover:border-slate-500 transition-colors">
                     <GitHubIcon size={20}/>
                   </a>
                 )}
-                <button onClick={() => { setGithubUrlTemp(githubUrl); setGithubMenuAberto(true); }} title="Configurar repositório GitHub" className="flex items-center justify-center w-7 h-7 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-slate-700 transition-colors">
+                <button onClick={() => { setGithubUrlTemp(githubUrl); setGithubMenuAberto(true); }} title="Configurar link do GitHub" className="flex items-center justify-center w-7 h-7 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-slate-700 transition-colors">
                   <MoreHorizontal size={16}/>
                 </button>
                 {githubMenuAberto && (
@@ -265,15 +265,23 @@ export default function CardModal({ card, col, allColumns, user, allUsers, allCa
                         largura pra fora, onde o overflow-hidden do modal
                         cortava o menu. */}
                     <div className="absolute top-full mt-1 left-0 w-64 bg-slate-800 rounded-xl shadow-xl border border-slate-700 z-[220] p-3 animate-in fade-in zoom-in-95">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Repositório GitHub</p>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Link do GitHub</p>
+                      <p className="text-[10px] text-slate-500 leading-relaxed mb-2">
+                        Repositório mostra os commits recentes; pull request mostra o estado dela e os commits dela.
+                      </p>
                       <div className="flex gap-1.5">
                         <input autoFocus type="text" value={githubUrlTemp} onChange={e => setGithubUrlTemp(e.target.value)}
                           onKeyDown={e => { if (e.key === 'Enter') { setGithubUrl(normalizeGithubUrl(githubUrlTemp)); setGithubMenuAberto(false); } if (e.key === 'Escape') setGithubMenuAberto(false); }}
-                          placeholder="github.com/usuario/repo" className="flex-1 text-xs bg-slate-900 text-slate-100 border border-slate-700 rounded-lg px-2 py-1.5 outline-none focus:border-emerald-400"/>
+                          placeholder="github.com/dono/repo ou .../pull/123" className="flex-1 text-xs bg-slate-900 text-slate-100 border border-slate-700 rounded-lg px-2 py-1.5 outline-none focus:border-emerald-400"/>
                         <button onClick={() => { setGithubUrl(normalizeGithubUrl(githubUrlTemp)); setGithubMenuAberto(false); }} className="px-2 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors">OK</button>
                       </div>
+                      {/* O OK só mexe em estado local — sem esse aviso a pessoa
+                          fecha o card achando que salvou, e nada persiste. */}
+                      <p className="text-[10px] text-amber-400/80 mt-1.5 leading-relaxed">
+                        O OK não salva: precisa clicar em <span className="font-bold">Salvar Tudo</span> no card depois.
+                      </p>
                       {githubUrl && (
-                        <button onClick={() => { setGithubUrl(''); setGithubUrlTemp(''); setGithubMenuAberto(false); }} className="mt-2 text-[10px] text-red-400 hover:text-red-300 font-bold">Remover repositório</button>
+                        <button onClick={() => { setGithubUrl(''); setGithubUrlTemp(''); setGithubMenuAberto(false); }} className="mt-2 text-[10px] text-red-400 hover:text-red-300 font-bold">Remover link</button>
                       )}
                       {podeFundir && (
                         <>
